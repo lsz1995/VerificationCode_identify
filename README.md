@@ -1,4 +1,4 @@
-# VerificationCode_identify
+# verification_code_identify
 
 
 对有噪点的验证码进行降噪处理，
