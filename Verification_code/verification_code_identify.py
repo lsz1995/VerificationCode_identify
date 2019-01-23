@@ -1,8 +1,10 @@
+# -*- coding: utf-8 -*-
 
 import pytesseract
 from PIL import Image
 
-def initTable(threshold=100):           # 二值化函数
+
+def initTable(threshold=100):  # 二值化函数
     table = []
     for i in range(256):
         if i > threshold:
@@ -11,6 +13,8 @@ def initTable(threshold=100):           # 二值化函数
             table.append(1)
 
     return table
+
+
 def print_bin(img):
     """
     输出二值后的图片到控制台，方便调试的函数
@@ -21,14 +25,14 @@ def print_bin(img):
     print('current binary output,width:%s-height:%s\n')
     for h in range(img.height):
         for w in range(img.width):
-            value =img.getpixel((w,h))
-            if value==0:
+            value = img.getpixel((w,h))
+            if value == 0:
                 print(value, end='')
             else:
-                print(' ',end='')
-
+                print(' ', end='')
 
         print('')
+
 
 def get_captcha(path):
     im = Image.open(path)  # 1.打开图片
@@ -41,7 +45,7 @@ def get_captcha(path):
 
 
 def sum_9_region_new(img, x, y):
-    '''确定噪点 '''
+    # 确定噪点
     cur_pixel = img.getpixel((x, y))  # 当前像素点的值
     width = img.width
     height = img.height
@@ -73,55 +77,46 @@ def sum_9_region_new(img, x, y):
 
 
 def collect_noise_point(img):
-	'''收集所有的噪点'''
-	noise_point_list = []
-	for x in range(img.width):
-		for y in range(img.height):
-			res_9 = sum_9_region_new(img, x, y)
-			if (0 < res_9 < 3) and img.getpixel((x, y)) == 0:  # 找到孤立点
-				pos = (x, y)
-				noise_point_list.append(pos)
-	return noise_point_list
+    # 收集所有的噪点
+    noise_point_list = []
+    for x in range(img.width):
+        for y in range(img.height):
+            res_9 = sum_9_region_new(img, x, y)
+            if (0 < res_9 < 3) and img.getpixel((x, y)) == 0:  # 找到孤立点
+                pos = (x, y)
+                noise_point_list.append(pos)
+    return noise_point_list
+
 
 def remove_noise_pixel(img, noise_point_list):
-	'''根据噪点的位置信息，消除二值图片的黑点噪声'''
-	for item in noise_point_list:
-		img.putpixel((item[0], item[1]), 1)
-
-
-
+    # 根据噪点的位置信息，消除二值图片的黑点噪声
+    for item in noise_point_list:
+        img.putpixel((item[0], item[1]), 1)
 
 
 def noise_reduction(img):
     """
-
-
     :param img: 灰度处理 二值化 后的图片
     :return:
     """
-    noise_point_list = collect_noise_point(img)#收集噪点
-    remove_noise_pixel(img, noise_point_list)#去除噪点
+    noise_point_list = collect_noise_point(img)  # 收集噪点
+    remove_noise_pixel(img, noise_point_list)  # 去除噪点
     print_bin(img)  # 输出二值图像
     return img
 
 
-
-
-
 if __name__ == '__main__':
-    # path = "captcha.jpg"
-    path = "2.png"
+    path = "6.png"
 
     im = Image.open(path)  # 1.打开图片
 
     im = im.convert('L')
     binaryImage = im.point(initTable(), '1')
 
-    binaryImage =noise_reduction(binaryImage)
+    binaryImage = noise_reduction(binaryImage)
 
-    text = pytesseract.image_to_string(binaryImage)
+    text = pytesseract.image_to_string(binaryImage, lang='eng')
 
-
-
+    print(text)
 
 
